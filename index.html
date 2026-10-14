@@ -3,6 +3,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>מועדון הקריאה</title>
+<meta name="description" content="נרשמים לאירוח ולכיבוד, ורואים מה הספר של השבוע">
+<meta property="og:title" content="מועדון הקריאה">
+<meta property="og:description" content="נרשמים לאירוח ולכיבוד, ורואים מה הספר של השבוע">
+<meta property="og:image" content="https://tasha-nyc.github.io/BookClub-/preview.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://tasha-nyc.github.io/BookClub-/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -177,7 +186,7 @@ function nextCard(i){
     '<dl class="lc-grid"><div><dt>מתי</dt><dd>'+fmtLong(d)+', '+esc(state.club.time)+'</dd></div>'+
     '<div><dt>מארח/ת</dt><dd>'+(member(m.host)?esc(member(m.host).name):'פנוי — אפשר להירשם')+'</dd></div>'+
     '<div><dt>כיבוד</dt><dd>'+(member(m.snacks)?esc(member(m.snacks).name):'פנוי — אפשר להירשם')+'</dd></div>'+
-    (m.address?'<div><dt>כתובת</dt><dd><a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(m.address)+'" target="_blank" rel="noopener">'+esc(m.address)+'</a></dd></div>':'')+(m.note?'<div><dt>הערה</dt><dd>'+esc(m.note)+'</dd></div>':'')+'</dl>'+
+    (function(){const a=m.address||state.club.place;return '<div><dt>כתובת</dt><dd>'+(a?'<a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(a)+'" target="_blank" rel="noopener">'+esc(a)+'</a>':'תתעדכן בקרוב')+'</dd></div>'})()+(m.note?'<div><dt>הערה</dt><dd>'+esc(m.note)+'</dd></div>':'')+'</dl>'+
     '<div class="stamp">'+fmtShort(d)+'<small>נפגשים</small></div></div>';
 }
 function scheduleView(){
