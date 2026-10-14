@@ -194,7 +194,7 @@ function nextCard(i){
 function scheduleView(){
   const open=[...Array(state.club.weeks).keys()].filter(i=>!mtg(i).skip&&meetingDate(i)>=today()&&(!member(mtg(i).host)||!member(mtg(i).snacks))).length;
   let h='<div class="toolbar"><p>'+(open?(open===1?'מפגש אחד קרוב עדיין צריך':open+' מפגשים קרובים עדיין צריכים')+' מארח/ת או כיבוד. לוחצים על מפגש כדי להירשם.':'כל המפגשים הקרובים מכוסים')+'</p>'+
-    '<button id="rotate"'+(state.members.length?'':' disabled title="קודם צריך להוסיף חברות וחברים"')+'>מילוי מקומות פנויים בתורנות</button></div>';
+    (isAdmin?'<button id="rotate"'+(state.members.length?'':' disabled title="קודם צריך להוסיף חברות וחברים"')+'>מילוי מקומות פנויים בתורנות</button>':'')+'</div>';
   for(let i=0;i<state.club.weeks;i++){
     const m=mtg(i), d=meetingDate(i), past=d<today(), b=bookFor(i), host=member(m.host), sn=member(m.snacks);
     h+='<button class="meet'+(past?' past':'')+(m.skip?' skip':'')+'" data-meet="'+i+'"><div class="date"><div class="m">'+MONTHS[d.getMonth()]+'</div><div class="d">'+d.getDate()+'</div></div><div>'+
@@ -307,7 +307,7 @@ root.addEventListener('click',async e=>{
     const resolve=async name=>{name=name.trim().replace(/\s+/g,' ');if(!name)return '';const ex=state.members.find(p=>p.name.trim().toLowerCase()===name.toLowerCase());if(ex)return ex.id;const id=uid();const r=await send('addMember',{id,name});return r?id:null};
     const h=await resolve(hn);if(h===null)return;const s2=await resolve(sn);if(s2===null)return;
     d.host=h;d.snacks=s2;send('setMeeting',d);return}
-  if(t.id==='rotate'){const items=rotationItems();if(items.length)send('fill',{items});return}
+  if(t.id==='rotate'){if(!isAdmin)return;const items=rotationItems();if(!items.length)return;if(!confirm('לשבץ אוטומטית את כל המקומות הפנויים לפי התור? אפשר לשנות כל שיבוץ אחר כך.'))return;send('fill',{items});return}
   if(t.id==='addmem'){const n=val('mname').trim();if(!n)return document.getElementById('mname').focus();send('addMember',{id:uid(),name:n});return}
   if(t.dataset.delmem){if(confirm('להסיר את השם מהמועדון?'))send('removeMember',{id:t.dataset.delmem});return}
   if(t.dataset.up){send('moveMember',{id:t.dataset.up});return}
