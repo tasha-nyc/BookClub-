@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>מועדון הקריאה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --surface-2:#E3E8F0; --ink:#1E2333; --muted:#5C6378;
+  --line:#CBD2DE; --accent:#E2A62B; --sage:#5E7D6B; --sage-soft:#DCE8E0; --warn:#B4532A;
+  --card:#1E2333; --card-ink:#F3EEDF;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141824; --surface:#1D2232; --surface-2:#262D41; --ink:#E8EAF2; --muted:#9AA1B6;
+  --line:#343B52; --accent:#F0B847; --sage:#8DB39C; --sage-soft:#24352C; --warn:#E4875F;
+  --card:#F3EEDF; --card-ink:#1E2333; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#141824; --surface:#1D2232; --surface-2:#262D41; --ink:#E8EAF2; --muted:#9AA1B6;
+  --line:#343B52; --accent:#F0B847; --sage:#8DB39C; --sage-soft:#24352C; --warn:#E4875F;
+  --card:#F3EEDF; --card-ink:#1E2333; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Assistant","Arial Hebrew","Segoe UI",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:28px 20px 80px}
+h1,h2,h3,.serif{font-family:"Frank Ruhl Libre","David","Times New Roman",serif;font-weight:700}
+h1{font-size:clamp(2.3rem,7vw,3.5rem);line-height:1.05;margin:0 0 8px}
+.sub{color:var(--muted);margin:0}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px}
+button:hover{border-color:var(--ink)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn-primary{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:700}
+.btn-quiet{border-color:transparent;background:transparent;color:var(--muted);padding:6px 8px}
+.btn-quiet:hover{color:var(--ink);border-color:transparent}
+.status{font-size:.88rem;color:var(--muted);min-height:1.2em;margin-top:6px;text-align:end}
+
+.libcard{position:relative;background:var(--card);color:var(--card-ink);border-radius:6px;padding:22px 24px 20px;margin-bottom:32px;overflow:hidden}
+.libcard::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent 0 33px,color-mix(in srgb,var(--card-ink) 12%,transparent) 33px 34px);pointer-events:none;opacity:.6}
+.libcard>*{position:relative}
+.lc-head{display:flex;justify-content:space-between;gap:12px;font-size:.92rem;opacity:.75;margin-bottom:6px}
+.lc-book{font-family:"Frank Ruhl Libre","David",serif;font-weight:700;font-size:clamp(1.6rem,5vw,2.2rem);line-height:1.15;margin:4px 0 2px}
+.lc-author{opacity:.75}
+.lc-main{display:flex;gap:18px;align-items:flex-end;margin:4px 0 18px}
+.lc-cover{width:96px;aspect-ratio:2/3;object-fit:cover;border-radius:3px;box-shadow:0 6px 18px rgba(0,0,0,.35);flex:none;background:var(--surface-2)}
+.bk-row{display:flex;gap:14px;align-items:center}
+.thumb{width:48px;aspect-ratio:2/3;object-fit:cover;border-radius:3px;flex:none;background:var(--surface-2)}
+.thumb-empty{border:1px dashed var(--line);background:transparent}
+.datesel{width:auto;margin-top:6px;padding:5px 8px;font-size:.9rem}
+.lc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px 24px;margin:0}
+.lc-grid dt{font-size:.85rem;opacity:.65}
+.lc-grid dd{margin:0 0 10px;font-weight:700}
+.stamp{position:absolute;inset-inline-end:18px;bottom:14px;transform:rotate(-8deg);border:2.5px solid var(--accent);color:var(--accent);border-radius:8px;padding:4px 10px;font-family:"Frank Ruhl Libre","David",serif;font-weight:700;font-size:1.1rem;text-align:center;line-height:1.1;background:color-mix(in srgb,var(--card) 70%,transparent)}
+.stamp small{display:block;font-family:"Assistant",sans-serif;font-size:.72rem;font-weight:600}
+
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto}
+.tab{border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;padding:10px 12px;color:var(--muted);white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:700}
+.tab:hover{border-color:transparent;color:var(--ink)}
+.tab[aria-selected="true"]:hover{border-bottom-color:var(--accent)}
+
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:14px}
+.toolbar p{margin:0;color:var(--muted);font-size:.95rem}
+
+.meet{display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:center;width:100%;text-align:start;border-radius:10px;padding:12px;background:var(--surface);border:1px solid var(--line);margin-bottom:8px}
+.meet:disabled{opacity:1;cursor:default}
+.meet.past{opacity:.55}
+.meet.skip .date{text-decoration:line-through}
+.date{text-align:center;border-inline-end:1px dashed var(--line);padding-inline-end:12px}
+.date .m{font-size:.82rem;color:var(--muted)}
+.date .d{font-family:"Frank Ruhl Libre","David",serif;font-weight:700;font-size:1.8rem;line-height:1}
+.meet .bk{font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{font-size:.85rem;padding:2px 10px;border-radius:999px;background:var(--surface-2);color:var(--ink)}
+.chip.need{background:transparent;border:1px dashed var(--warn);color:var(--warn)}
+.chip.ok{background:var(--sage-soft);color:var(--ink)}
+
+.list-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.list-row .t{font-weight:700}
+.list-row .s{color:var(--muted);font-size:.92rem}
+.addrow{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px}
+.addrow input{flex:1 1 160px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%;max-width:100%}
+label{display:block;font-size:.9rem;color:var(--muted);margin:12px 0 4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+@media (max-width:520px){.grid2{grid-template-columns:1fr}}
+.empty{color:var(--muted);padding:20px 0}
+
+.sheet-bg{position:fixed;inset:0;background:rgba(10,12,20,.45);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.sheet-bg.open{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:90%;overflow:auto;border-radius:16px 16px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));animation:up .22s ease-out}
+@media (min-width:640px){.sheet-bg{align-items:center}.sheet{border-radius:16px}}
+@keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.sheet h2{margin:0 0 2px;font-size:1.7rem}
+.sheet-actions{display:flex;justify-content:space-between;gap:8px;margin-top:20px;flex-wrap:wrap}
+.check{display:flex;gap:8px;align-items:center;color:var(--ink);margin-top:14px}
+.check input{width:auto}
+.ro-note{background:var(--surface-2);border-radius:10px;padding:10px 14px;font-size:.92rem;color:var(--muted);margin-bottom:18px}
+
+.banner{background:var(--surface-2);border-radius:10px;padding:12px 14px;margin-bottom:18px}
+.admin-box{margin-top:30px;padding-top:18px;border-top:1px solid var(--line)}
+.lc-cover-empty{display:none}
+</style>
+</head><body>
+<div id="root"></div>
+<script>
+(function(){
+/* ← להדביק כאן את הכתובת של ה-Web App מגוגל */
+const API_URL='PASTE_WEB_APP_URL_HERE';
+
+let state=null, covers={}, tab='schedule', isAdmin=false, busy=false, statusMsg='', pendingCover=null, loadError='';
+let pin=''; try{pin=localStorage.getItem('bookclub-pin')||''}catch(e){}
+const root=document.getElementById('root');
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+const DAYS=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+function meetingDate(i){const [y,m,d]=state.club.start.split('-').map(Number);return new Date(y,m-1,d+7*i)}
+const fmtShort=dt=>dt.getDate()+' ב'+MONTHS[dt.getMonth()];
+const fmtLong=dt=>'יום '+DAYS[dt.getDay()]+', '+fmtShort(dt);
+const member=id=>state.members.find(x=>x.id===id);
+const book=id=>state.books.find(x=>x.id===id);
+const mtg=i=>state.meetings[i]||{};
+function today(){const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())}
+function nextIndex(){const t=today();for(let i=0;i<state.club.weeks;i++){if(!mtg(i).skip&&meetingDate(i)>=t)return i}return -1}
+function bookFor(i){const b=mtg(i).book;return (b&&book(b))||null}
+const cover=b=>b&&covers[b.id]?covers[b.id]:'';
+function dateOpts(sel){let o='<option value="">בחירת תאריך מפגש</option>';for(let i=0;i<state.club.weeks;i++){if(mtg(i).skip)continue;o+='<option value="'+i+'"'+(sel===i?' selected':'')+'>'+fmtLong(meetingDate(i))+'</option>'}return o}
+function firstFree(){const t=today();for(let i=0;i<state.club.weeks;i++){const m=mtg(i);if(!m.skip&&meetingDate(i)>=t&&!bookFor(i))return i}return -1}
+function setStatus(m){statusMsg=m;const el=document.getElementById('status');if(el)el.textContent=m}
+
+/* ---------- שרת ---------- */
+async function load(){
+  try{const r=await fetch(API_URL,{cache:'no-store'});const d=await r.json();if(!d.ok)throw new Error(d.error);state=d.state;covers=d.covers||{};loadError=''}
+  catch(e){if(!state)loadError='לא הצלחנו לטעון את הלוח. בדקו את החיבור ונסו לרענן.'}
+}
+async function send(action,data){
+  busy=true;setStatus('שומר…');
+  try{
+    const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action,pin},data||{}))});
+    const d=await r.json();
+    if(!d.ok){setStatus(d.error==='pin'?'הפעולה הזו פתוחה רק למארגנת':'השמירה נכשלה. נסו שוב.');return null}
+    if(d.state){state=d.state;covers=d.covers||{}}
+    setStatus('נשמר');return d;
+  }catch(e){setStatus('השמירה נכשלה. בדקו את החיבור ונסו שוב.');return null}
+  finally{busy=false;render()}
+}
+
+/* ---------- תצוגה ---------- */
+function render(){
+  if(API_URL.indexOf('PASTE_')===0){root.innerHTML='<div class="wrap"><h1>מועדון הקריאה</h1><p class="banner">עוד לא חיברו את האתר לגוגל שיט. צריך להדביק את כתובת ה-Web App בקובץ.</p></div>';return}
+  if(!state){root.innerHTML='<div class="wrap"><h1>מועדון הקריאה</h1><p class="sub">'+(loadError||'טוען…')+'</p></div>';return}
+  const sheetOpen=document.getElementById('sheetbg')&&document.getElementById('sheetbg').classList.contains('open');
+  if(sheetOpen)return;
+  const c=state.club, ni=nextIndex(), first=meetingDate(0);
+  let h='<div class="wrap"><div class="top"><div><h1>'+esc(c.name)+'</h1><p class="sub">כל יום '+DAYS[first.getDay()]+' ב־'+esc(c.time)+', החל מ־'+fmtShort(first)+(c.place?' · '+esc(c.place):'')+'</p></div>'+
+    '<div><button id="ics">הוספה ליומן שלי</button><div class="status" id="status" aria-live="polite">'+esc(statusMsg)+'</div></div></div>';
+  h+=nextCard(ni);
+  const tabs=[['schedule','לוח מפגשים'],['books','ספרים'],['members','חברות וחברים'],['settings','הגדרות']];
+  h+='<div class="tabs" role="tablist">'+tabs.map(t=>'<button class="tab" role="tab" data-tab="'+t[0]+'" aria-selected="'+(tab===t[0])+'">'+t[1]+'</button>').join('')+'</div>';
+  h+=tab==='schedule'?scheduleView():tab==='books'?booksView():tab==='members'?membersView():settingsView();
+  h+='</div><div class="sheet-bg" id="sheetbg"><div class="sheet" role="dialog" aria-modal="true" id="sheet"></div></div>';
+  root.innerHTML=h;
+}
+function nextCard(i){
+  if(i<0)return '<div class="libcard"><div class="lc-book">העונה הסתיימה.</div><div class="lc-author">אפשר להוסיף שבועות בהגדרות כדי להמשיך.</div></div>';
+  const m=mtg(i), d=meetingDate(i), b=bookFor(i), days=Math.round((d-today())/864e5);
+  const when=days===0?'הערב':days===1?'מחר':days===2?'בעוד יומיים':'בעוד '+days+' ימים';
+  return '<div class="libcard" aria-label="המפגש הבא"><div class="lc-head"><span>המפגש הבא · שבוע '+(i+1)+'</span><span>'+when+'</span></div>'+
+    '<div class="lc-main">'+(cover(b)?'<img class="lc-cover" src="'+cover(b)+'" alt="כריכת '+esc(b.title)+'">':'')+'<div><div class="lc-book">'+(b?esc(b.title):'הספר ייבחר בקרוב')+'</div><div class="lc-author">'+(b&&b.author?esc(b.author):'&nbsp;')+'</div></div></div>'+
+    '<dl class="lc-grid"><div><dt>מתי</dt><dd>'+fmtLong(d)+', '+esc(state.club.time)+'</dd></div>'+
+    '<div><dt>מארח/ת</dt><dd>'+(member(m.host)?esc(member(m.host).name):'פנוי — אפשר להירשם')+'</dd></div>'+
+    '<div><dt>כיבוד</dt><dd>'+(member(m.snacks)?esc(member(m.snacks).name):'פנוי — אפשר להירשם')+'</dd></div>'+
+    (m.note?'<div><dt>הערה</dt><dd>'+esc(m.note)+'</dd></div>':'')+'</dl>'+
+    '<div class="stamp">'+fmtShort(d)+'<small>נפגשים</small></div></div>';
+}
+function scheduleView(){
+  const open=[...Array(state.club.weeks).keys()].filter(i=>!mtg(i).skip&&meetingDate(i)>=today()&&(!member(mtg(i).host)||!member(mtg(i).snacks))).length;
+  let h='<div class="toolbar"><p>'+(open?(open===1?'מפגש אחד קרוב עדיין צריך':open+' מפגשים קרובים עדיין צריכים')+' מארח/ת או כיבוד. לוחצים על מפגש כדי להירשם.':'כל המפגשים הקרובים מכוסים')+'</p>'+
+    '<button id="rotate"'+(state.members.length?'':' disabled title="קודם צריך להוסיף חברות וחברים"')+'>מילוי מקומות פנויים בתורנות</button></div>';
+  for(let i=0;i<state.club.weeks;i++){
+    const m=mtg(i), d=meetingDate(i), past=d<today(), b=bookFor(i), host=member(m.host), sn=member(m.snacks);
+    h+='<button class="meet'+(past?' past':'')+(m.skip?' skip':'')+'" data-meet="'+i+'"><div class="date"><div class="m">'+MONTHS[d.getMonth()]+'</div><div class="d">'+d.getDate()+'</div></div><div>'+
+      '<div class="bk">'+(m.skip?'אין מפגש השבוע':b?esc(b.title):'עוד לא נבחר ספר')+'</div>'+
+      (m.skip?'':'<div class="chips">'+(host?'<span class="chip ok">מארח/ת: '+esc(host.name)+'</span>':'<span class="chip need">צריך מארח/ת</span>')+
+      (sn?'<span class="chip ok">כיבוד: '+esc(sn.name)+'</span>':'<span class="chip need">צריך כיבוד</span>')+
+      (m.note?'<span class="chip">'+esc(m.note)+'</span>':'')+'</div>')+'</div></button>';
+  }
+  return h;
+}
+function booksView(){
+  let h='<p class="sub">'+(isAdmin?'מוסיפים כאן את הספרים, ולכל ספר בוחרים את תאריך המפגש שבו מדברים עליו.':'המארגנת בוחרת את הספרים ובאיזה מפגש מדברים על כל אחד.')+'</p>';
+  if(!state.books.length)h+='<p class="empty">'+(isAdmin?'עוד אין ספרים. אפשר להוסיף את הראשון למטה.':'עוד לא הוכרזו ספרים.')+'</p>';
+  state.books.forEach(b=>{
+    const sw=[...Array(state.club.weeks).keys()].find(i=>mtg(i).book===b.id&&!mtg(i).skip);
+    const range=sw!=null?'מפגש: '+fmtLong(meetingDate(sw))+', '+esc(state.club.time):'עוד לא נקבע תאריך';
+    const thumb=cover(b)?'<img class="thumb" src="'+cover(b)+'" alt="">':'<div class="thumb thumb-empty" aria-hidden="true"></div>';
+    h+='<div class="list-row"><div class="bk-row">'+thumb+'<div><div class="t serif">'+esc(b.title)+'</div>'+(b.author?'<div class="s">'+esc(b.author)+'</div>':'')+'<div class="s">'+range+'</div>'+
+      (isAdmin?'<select class="datesel" data-bookdate="'+b.id+'" aria-label="תאריך המפגש של '+esc(b.title)+'">'+dateOpts(sw!=null?sw:-1)+'</select>':'')+'</div></div>'+
+      (isAdmin?'<div><button class="btn-quiet" data-cover="'+b.id+'">'+(cover(b)?'החלפת תמונה':'הוספת תמונה')+'</button><button class="btn-quiet" data-delbook="'+b.id+'">הסרה</button></div>':'')+'</div>';
+  });
+  if(isAdmin)h+='<input type="file" accept="image/*" id="coverfile" hidden><div class="addrow"><input id="btitle" placeholder="שם הספר" aria-label="שם הספר"><input id="bauthor" placeholder="סופר/ת" aria-label="סופר/ת"><select id="bdate" class="datesel" style="margin-top:0" aria-label="תאריך המפגש">'+dateOpts(firstFree())+'</select><button class="btn-primary" id="addbook">הוספת ספר</button></div>';
+  return h;
+}
+function membersView(){
+  let h='<p class="sub">כל מי שבמועדון. מוסיפים את השם שלכם כאן, ואז נרשמים לאירוח או לכיבוד בלוח המפגשים.</p>';
+  if(!state.members.length)h+='<p class="empty">עוד אין שמות. אפשר להוסיף את הראשון למטה.</p>';
+  state.members.forEach((p,ix)=>{
+    const ms=Object.values(state.meetings), hosts=ms.filter(m=>m.host===p.id&&!m.skip).length, snacks=ms.filter(m=>m.snacks===p.id&&!m.skip).length;
+    h+='<div class="list-row"><div><div class="t">'+esc(p.name)+'</div><div class="s">אירוח: '+hosts+' · כיבוד: '+snacks+'</div></div>'+(isAdmin?'<div>'+(ix>0?'<button class="btn-quiet" data-up="'+p.id+'">הזזה למעלה</button>':'')+'<button class="btn-quiet" data-delmem="'+p.id+'">הסרה</button></div>':'')+'</div>';
+  });
+  h+='<div class="addrow"><input id="mname" placeholder="שם" aria-label="שם"><button class="btn-primary" id="addmem">הוספה</button></div>';
+  return h;
+}
+function settingsView(){
+  const c=state.club, dis=isAdmin?'':' disabled';
+  let h='<label for="s-name">שם המועדון</label><input id="s-name" value="'+esc(c.name)+'"'+dis+'>'+
+    '<div class="grid2"><div><label for="s-start">מפגש ראשון</label><input type="date" id="s-start" value="'+esc(c.start)+'"'+dis+'></div>'+
+    '<div><label for="s-time">שעה</label><input type="time" id="s-time" value="'+esc(c.time)+'"'+dis+'></div>'+
+    '<div><label for="s-weeks">מספר שבועות</label><input type="number" min="1" max="104" id="s-weeks" value="'+c.weeks+'"'+dis+'></div>'+
+    '<div><label for="s-place">מיקום קבוע (לא חובה)</label><input id="s-place" value="'+esc(c.place)+'" placeholder="למשל: מתחלף לפי המארח/ת"'+dis+'></div></div>'+
+    (isAdmin?'<div class="sheet-actions"><span></span><button class="btn-primary" id="savesettings">שמירת הגדרות</button></div>':'');
+  h+='<div class="admin-box">'+(isAdmin?'<p class="sub">את מחוברת כמארגנת במכשיר הזה.</p><div class="sheet-actions"><span></span><button id="logout">יציאה ממצב מארגנת</button></div>':
+    '<label for="pin">כניסת מארגנת</label><div class="addrow" style="margin-top:0"><input id="pin" type="password" inputmode="numeric" placeholder="קוד מארגנת" autocomplete="off"><button id="login">כניסה</button></div>')+'</div>';
+  return h;
+}
+function openSheet(i){
+  const m=mtg(i), d=meetingDate(i);
+  const opts=sel=>'<option value="">פנוי</option>'+state.members.map(p=>'<option value="'+p.id+'"'+(sel===p.id?' selected':'')+'>'+esc(p.name)+'</option>').join('');
+  const bopts='<option value="">לא נבחר</option>'+state.books.map(b=>'<option value="'+b.id+'"'+(m.book===b.id?' selected':'')+'>'+esc(b.title)+'</option>').join('');
+  root.querySelector('#sheet').innerHTML='<h2>'+fmtLong(d)+'</h2><p class="sub">שבוע '+(i+1)+' · '+esc(state.club.time)+'</p>'+
+    (state.members.length?'':'<p class="ro-note">כדי להירשם, קודם מוסיפים את השם בלשונית "חברות וחברים".</p>')+
+    '<div class="grid2"><div><label for="e-host">מארח/ת</label><select id="e-host">'+opts(m.host)+'</select></div>'+
+    '<div><label for="e-snacks">כיבוד</label><select id="e-snacks">'+opts(m.snacks)+'</select></div></div>'+
+    (isAdmin?'<label for="e-book">הספר שמדברים עליו במפגש</label><select id="e-book">'+bopts+'</select>':'<label>הספר שמדברים עליו</label><div>'+(bookFor(i)?esc(bookFor(i).title):'עוד לא נבחר')+'</div>')+
+    '<label for="e-note">הערה (כתובת, נושא…)</label><input id="e-note" value="'+esc(m.note||'')+'">'+
+    (isAdmin?'<label class="check"><input type="checkbox" id="e-skip"'+(m.skip?' checked':'')+'> מדלגים על השבוע הזה</label>':'')+
+    '<div class="sheet-actions"><button id="e-cancel">ביטול</button><button class="btn-primary" id="e-save" data-i="'+i+'">שמירה</button></div>';
+  document.getElementById('sheetbg').classList.add('open');
+  document.getElementById('e-host').focus();
+}
+function closeSheet(){const bg=document.getElementById('sheetbg');if(bg)bg.classList.remove('open')}
+
+/* ---------- פעולות ---------- */
+function rotationItems(){
+  const counts={};state.members.forEach(p=>counts[p.id]={h:0,s:0});
+  Object.values(state.meetings).forEach(m=>{if(m.skip)return;if(counts[m.host])counts[m.host].h++;if(counts[m.snacks])counts[m.snacks].s++});
+  const pick=(f,avoid)=>{const c=state.members.map((p,ix)=>({p,ix})).sort((a,b)=>counts[a.p.id][f]-counts[b.p.id][f]||a.ix-b.ix);const x=c.find(y=>y.p.id!==avoid)||c[0];counts[x.p.id][f]++;return x.p.id};
+  const items=[];
+  for(let i=0;i<state.club.weeks;i++){
+    const m=mtg(i);if(m.skip||meetingDate(i)<today())continue;
+    let host=member(m.host)?m.host:'', sn=member(m.snacks)?m.snacks:'';
+    const it={i};if(!host){host=pick('h',sn);it.host=host}if(!sn){it.snacks=pick('s',host)}
+    if(it.host||it.snacks)items.push(it);
+  }
+  return items;
+}
+function ics(){
+  const pad=n=>String(n).padStart(2,'0'), [hh,mm]=state.club.time.split(':');
+  const out=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Book Club//HE','CALSCALE:GREGORIAN'];
+  const clean=s=>String(s).replace(/[\\;,]/g,m=>'\\'+m).replace(/\n/g,'\\n');
+  for(let i=0;i<state.club.weeks;i++){
+    const m=mtg(i);if(m.skip)continue;const d=meetingDate(i), b=bookFor(i), st=d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());
+    const desc=['מארח/ת: '+(member(m.host)?member(m.host).name:'פנוי'),'כיבוד: '+(member(m.snacks)?member(m.snacks).name:'פנוי')].concat(m.note?[m.note]:[]).join('\n');
+    out.push('BEGIN:VEVENT','UID:bookclub-'+st+'-'+i+'@bookclub','DTSTAMP:'+st+'T000000','DTSTART:'+st+'T'+hh+mm+'00','DURATION:PT2H','SUMMARY:'+clean(state.club.name+(b?' — '+b.title:'')),'DESCRIPTION:'+clean(desc));
+    if(state.club.place)out.push('LOCATION:'+clean(state.club.place));
+    out.push('END:VEVENT');
+  }
+  out.push('END:VCALENDAR');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([out.join('\r\n')],{type:'text/calendar'}));a.download='book-club.ics';document.body.appendChild(a);a.click();a.remove();
+}
+function shrink(file){return new Promise(res=>{const img=new Image(),u=URL.createObjectURL(file);img.onload=()=>{let max=360,q=.8,data='';
+  for(let t=0;t<6;t++){const s=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);data=c.toDataURL('image/jpeg',q);if(data.length<45000)break;q-=.1;max-=40}
+  URL.revokeObjectURL(u);res(data.length<49000?data:'')};img.onerror=()=>{URL.revokeObjectURL(u);res('')};img.src=u})}
+const val=id=>{const el=document.getElementById(id);return el?el.value:''};
+
+root.addEventListener('click',async e=>{
+  const t=e.target.closest('button');
+  if(!t){if(e.target.id==='sheetbg')closeSheet();return}
+  if(busy&&!t.dataset.tab&&t.id!=='e-cancel')return;
+  if(t.dataset.tab){tab=t.dataset.tab;render();return}
+  if(t.dataset.meet!=null){openSheet(+t.dataset.meet);return}
+  if(t.id==='ics'){ics();return}
+  if(t.id==='e-cancel'){closeSheet();render();return}
+  if(t.id==='e-save'){const d={i:t.dataset.i,host:val('e-host'),snacks:val('e-snacks'),note:val('e-note').trim()};if(isAdmin){d.book=val('e-book');d.skip=document.getElementById('e-skip').checked}closeSheet();send('setMeeting',d);return}
+  if(t.id==='rotate'){const items=rotationItems();if(items.length)send('fill',{items});return}
+  if(t.id==='addmem'){const n=val('mname').trim();if(!n)return document.getElementById('mname').focus();send('addMember',{id:uid(),name:n});return}
+  if(t.dataset.delmem){if(confirm('להסיר את השם מהמועדון?'))send('removeMember',{id:t.dataset.delmem});return}
+  if(t.dataset.up){send('moveMember',{id:t.dataset.up});return}
+  if(t.id==='addbook'){const ti=val('btitle').trim();if(!ti)return document.getElementById('btitle').focus();send('addBook',{id:uid(),title:ti,author:val('bauthor').trim(),date:val('bdate')});return}
+  if(t.dataset.delbook){if(confirm('להסיר את הספר?'))send('removeBook',{id:t.dataset.delbook});return}
+  if(t.dataset.cover){pendingCover=t.dataset.cover;document.getElementById('coverfile').click();return}
+  if(t.id==='savesettings'){send('saveSettings',{club:{name:val('s-name').trim(),start:val('s-start')||state.club.start,time:val('s-time')||state.club.time,weeks:val('s-weeks'),place:val('s-place').trim()}});return}
+  if(t.id==='login'){const p=val('pin').trim();if(!p)return;const old=pin;pin=p;const d=await send('checkPin');if(d&&d.admin){isAdmin=true;try{localStorage.setItem('bookclub-pin',p)}catch(e){}setStatus('את מחוברת כמארגנת')}else{pin=old;setStatus('הקוד לא נכון')}render();return}
+  if(t.id==='logout'){isAdmin=false;pin='';try{localStorage.removeItem('bookclub-pin')}catch(e){}render();return}
+});
+root.addEventListener('change',async e=>{
+  if(e.target.dataset&&e.target.dataset.bookdate){send('setBookDate',{id:e.target.dataset.bookdate,date:e.target.value});return}
+  if(e.target.id==='coverfile'){const f=e.target.files&&e.target.files[0],id=pendingCover;e.target.value='';pendingCover=null;if(!f||!id)return;
+    setStatus('מכין תמונה…');const data=await shrink(f);if(!data){setStatus('לא הצלחנו לקרוא את התמונה. נסו תמונה אחרת.');return}send('setCover',{id,cover:data})}
+});
+root.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeSheet();render()}
+  if(e.key==='Enter'&&e.target.tagName==='INPUT'){const map={btitle:'addbook',bauthor:'addbook',mname:'addmem',pin:'login'};const b=map[e.target.id]&&document.getElementById(map[e.target.id]);if(b)b.click()}
+});
+
+(async()=>{
+  render();
+  if(API_URL.indexOf('PASTE_')===0)return;
+  await load();
+  if(pin){const d=await send('checkPin');isAdmin=!!(d&&d.admin);setStatus('')}
+  render();
+  setInterval(async()=>{if(busy||document.hidden)return;await load();render()},45000);
+})();
+})();
+</script>
+</body></html>
