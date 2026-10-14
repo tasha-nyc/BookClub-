@@ -3,9 +3,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>מועדון הקריאה</title>
-<meta name="description" content="נרשמים לאירוח ולכיבוד, ורואים מה הספר של השבוע">
+<meta name="description" content="נרשמים לאירוח ולכיבוד, ורואים מה הספר של החודש">
 <meta property="og:title" content="מועדון הקריאה">
-<meta property="og:description" content="נרשמים לאירוח ולכיבוד, ורואים מה הספר של השבוע">
+<meta property="og:description" content="נרשמים לאירוח ולכיבוד, ורואים מה הספר של החודש">
 <meta property="og:image" content="https://tasha-nyc.github.io/BookClub-/preview.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -130,7 +130,9 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 const uid=()=>Math.random().toString(36).slice(2,9);
 const MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
 const DAYS=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
-function meetingDate(i){const [y,m,d]=state.club.start.split('-').map(Number);return new Date(y,m-1,d+7*i)}
+function nthOf(){const [y,m,d]=state.club.start.split('-').map(Number);const s=new Date(y,m-1,d);return {y,m:m-1,wd:s.getDay(),n:Math.ceil(d/7)}}
+function meetingDate(i){const o=nthOf();const mm=o.m+i;const f=new Date(o.y,mm,1);let day=1+((o.wd-f.getDay()+7)%7)+7*(o.n-1);const last=new Date(o.y,mm+1,0).getDate();if(o.n>=5||day>last){day=last-((new Date(o.y,mm,last).getDay()-o.wd+7)%7)}return new Date(o.y,mm,day)}
+const ORD=['הראשון','השני','השלישי','הרביעי','האחרון'];
 const fmtShort=dt=>dt.getDate()+' ב'+MONTHS[dt.getMonth()];
 const fmtLong=dt=>'יום '+DAYS[dt.getDay()]+', '+fmtShort(dt);
 const member=id=>state.members.find(x=>x.id===id);
@@ -168,7 +170,7 @@ function render(){
   const sheetOpen=document.getElementById('sheetbg')&&document.getElementById('sheetbg').classList.contains('open');
   if(sheetOpen)return;
   const c=state.club, ni=nextIndex(), first=meetingDate(0);
-  let h='<div class="wrap"><div class="top"><div><h1>'+esc(c.name)+'</h1><p class="sub">כל יום '+DAYS[first.getDay()]+' ב־'+esc(c.time)+', החל מ־'+fmtShort(first)+(c.place?' · '+esc(c.place):'')+'</p></div>'+
+  let h='<div class="wrap"><div class="top"><div><h1>'+esc(c.name)+'</h1><p class="sub">פעם בחודש, ביום '+DAYS[first.getDay()]+' '+ORD[Math.min(nthOf().n,5)-1]+' בחודש ב־'+esc(c.time)+', החל מ־'+fmtShort(first)+(c.place?' · '+esc(c.place):'')+'</p></div>'+
     '<div><button id="ics">הוספה ליומן שלי</button><div class="status" id="status" aria-live="polite">'+esc(statusMsg)+'</div></div></div>';
   h+=nextCard(ni);
   const tabs=[['schedule','לוח מפגשים'],['books','ספרים'],['members','חברות וחברים'],['settings','הגדרות']];
@@ -178,10 +180,10 @@ function render(){
   root.innerHTML=h;
 }
 function nextCard(i){
-  if(i<0)return '<div class="libcard"><div class="lc-book">העונה הסתיימה.</div><div class="lc-author">אפשר להוסיף שבועות בהגדרות כדי להמשיך.</div></div>';
+  if(i<0)return '<div class="libcard"><div class="lc-book">העונה הסתיימה.</div><div class="lc-author">אפשר להוסיף מפגשים בהגדרות כדי להמשיך.</div></div>';
   const m=mtg(i), d=meetingDate(i), b=bookFor(i), days=Math.round((d-today())/864e5);
   const when=days===0?'הערב':days===1?'מחר':days===2?'בעוד יומיים':'בעוד '+days+' ימים';
-  return '<div class="libcard" aria-label="המפגש הבא"><div class="lc-head"><span>המפגש הבא · שבוע '+(i+1)+'</span><span>'+when+'</span></div>'+
+  return '<div class="libcard" aria-label="המפגש הבא"><div class="lc-head"><span>המפגש הבא · מפגש '+(i+1)+'</span><span>'+when+'</span></div>'+
     '<div class="lc-main">'+(cover(b)?'<img class="lc-cover" src="'+cover(b)+'" alt="כריכת '+esc(b.title)+'">':'')+'<div><div class="lc-book">'+(b?esc(b.title):'הספר ייבחר בקרוב')+'</div><div class="lc-author">'+(b&&b.author?esc(b.author):'&nbsp;')+'</div></div></div>'+
     '<dl class="lc-grid"><div><dt>מתי</dt><dd>'+fmtLong(d)+', '+esc(state.club.time)+'</dd></div>'+
     '<div><dt>מארח/ת</dt><dd>'+(member(m.host)?esc(member(m.host).name):'פנוי — אפשר להירשם')+'</dd></div>'+
@@ -196,7 +198,7 @@ function scheduleView(){
   for(let i=0;i<state.club.weeks;i++){
     const m=mtg(i), d=meetingDate(i), past=d<today(), b=bookFor(i), host=member(m.host), sn=member(m.snacks);
     h+='<button class="meet'+(past?' past':'')+(m.skip?' skip':'')+'" data-meet="'+i+'"><div class="date"><div class="m">'+MONTHS[d.getMonth()]+'</div><div class="d">'+d.getDate()+'</div></div><div>'+
-      '<div class="bk">'+(m.skip?'אין מפגש השבוע':b?esc(b.title):'עוד לא נבחר ספר')+'</div>'+
+      '<div class="bk">'+(m.skip?'אין מפגש החודש':b?esc(b.title):'עוד לא נבחר ספר')+'</div>'+
       (m.skip?'':'<div class="chips">'+(host?'<span class="chip ok">מארח/ת: '+esc(host.name)+'</span>':'<span class="chip need">צריך מארח/ת</span>')+
       (sn?'<span class="chip ok">כיבוד: '+esc(sn.name)+'</span>':'<span class="chip need">צריך כיבוד</span>')+
       (m.address?'<span class="chip">כתובת: '+esc(m.address)+'</span>':'')+(m.note?'<span class="chip">'+esc(m.note)+'</span>':'')+'</div>')+'</div></button>';
@@ -232,7 +234,7 @@ function settingsView(){
   let h='<label for="s-name">שם המועדון</label><input id="s-name" value="'+esc(c.name)+'"'+dis+'>'+
     '<div class="grid2"><div><label for="s-start">מפגש ראשון</label><input type="date" id="s-start" value="'+esc(c.start)+'"'+dis+'></div>'+
     '<div><label for="s-time">שעה</label><input type="time" id="s-time" value="'+esc(c.time)+'"'+dis+'></div>'+
-    '<div><label for="s-weeks">מספר שבועות</label><input type="number" min="1" max="104" id="s-weeks" value="'+c.weeks+'"'+dis+'></div>'+
+    '<div><label for="s-weeks">מספר מפגשים</label><input type="number" min="1" max="36" id="s-weeks" value="'+c.weeks+'"'+dis+'></div>'+
     '<div><label for="s-place">מיקום קבוע (לא חובה)</label><input id="s-place" value="'+esc(c.place)+'" placeholder="למשל: מתחלף לפי המארח/ת"'+dis+'></div></div>'+
     (isAdmin?'<div class="sheet-actions"><span></span><button class="btn-primary" id="savesettings">שמירת הגדרות</button></div>':'');
   h+='<div class="admin-box">'+(isAdmin?'<p class="sub">את מחוברת כמארגנת במכשיר הזה.</p><div class="sheet-actions"><span></span><button id="logout">יציאה ממצב מארגנת</button></div>':
@@ -244,13 +246,13 @@ function openSheet(i){
   const nameOf=id=>member(id)?member(id).name:'';
   const dl='<datalist id="mlist">'+state.members.map(p=>'<option value="'+esc(p.name)+'">').join('')+'</datalist>';
   const bopts='<option value="">לא נבחר</option>'+state.books.map(b=>'<option value="'+b.id+'"'+(m.book===b.id?' selected':'')+'>'+esc(b.title)+'</option>').join('');
-  root.querySelector('#sheet').innerHTML='<h2>'+fmtLong(d)+'</h2><p class="sub">שבוע '+(i+1)+' · '+esc(state.club.time)+'</p>'+
+  root.querySelector('#sheet').innerHTML='<h2>'+fmtLong(d)+'</h2><p class="sub">מפגש '+(i+1)+' · '+esc(state.club.time)+'</p>'+
     dl+'<div class="grid2"><div><label for="e-host">מארח/ת</label><input id="e-host" list="mlist" autocomplete="off" value="'+esc(nameOf(m.host))+'" placeholder="פנוי — מקלידים שם"></div>'+
     '<div><label for="e-snacks">כיבוד</label><input id="e-snacks" list="mlist" autocomplete="off" value="'+esc(nameOf(m.snacks))+'" placeholder="פנוי — מקלידים שם"></div></div>'+
     '<label for="e-addr">כתובת המפגש</label><input id="e-addr" value="'+esc(m.address||'')+'" placeholder="רחוב, מספר, עיר">'+
     (isAdmin?'<label for="e-book">הספר שמדברים עליו במפגש</label><select id="e-book">'+bopts+'</select>':'<label>הספר שמדברים עליו</label><div>'+(bookFor(i)?esc(bookFor(i).title):'עוד לא נבחר')+'</div>')+
     '<label for="e-note">הערה (קומה, קוד כניסה, נושא…)</label><input id="e-note" value="'+esc(m.note||'')+'">'+
-    (isAdmin?'<label class="check"><input type="checkbox" id="e-skip"'+(m.skip?' checked':'')+'> מדלגים על השבוע הזה</label>':'')+
+    (isAdmin?'<label class="check"><input type="checkbox" id="e-skip"'+(m.skip?' checked':'')+'> מדלגים על החודש הזה</label>':'')+
     '<div class="sheet-actions"><button id="e-cancel">ביטול</button><button class="btn-primary" id="e-save" data-i="'+i+'">שמירה</button></div>';
   document.getElementById('sheetbg').classList.add('open');
   document.getElementById('e-host').focus();
